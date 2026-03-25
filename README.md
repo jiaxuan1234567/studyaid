@@ -1,75 +1,226 @@
 # StudyAid
 
-StudyAid is a web-based application designed to assist students with their learning process. It provides a suite of tools for document management, content creation, and interactive learning, leveraging various Google Cloud services for advanced features.
+StudyAid is a PHP-based web application that helps students convert uploaded study materials into structured learning outputs, including summaries, notes, mindmaps, flashcards, quizzes, and document-grounded Q&A.
 
-## Prerequisites
+---
 
-Before you begin, ensure you have the following installed:
+## Overview
 
-*   **XAMPP:** A web server solution that includes Apache, MySQL, and PHP.
-*   **Composer:** A dependency manager for PHP.
-*   **Git:** For version control.
+StudyAid streamlines how students process and learn from large volumes of study materials.
 
-## Setup Instructions
+It integrates document management, OCR extraction, and AI-powered generation into a unified workflow, enabling users to transform raw content into structured learning outputs such as summaries, flashcards, and quizzes, as well as perform document-grounded Q&A across multiple sources.
 
-### 1. Clone the Repository
+---
 
-Clone the project to your local machine. It is recommended to clone it directly into your XAMPP `htdocs` directory.
+## Key Features
 
-```bash
-git clone <repository-url> /Applications/XAMPP/xamppfiles/htdocs/studyaid
+- **Document and folder management**
+  - Supports upload, search, move, rename, and delete flows for study files and folders.
+- **OCR text extraction**
+  - Implemented Tesseract as the primary OCR engine with Google Vision fallback.
+- **AI learning artifact generation**
+  - Implemented generation pipelines for summaries, notes, mindmaps, flashcards, and quizzes.
+- **Document-grounded chat**
+  - Implemented retrieval-based Q&A using stored document chunks and embeddings.
+- **Quiz generation and evaluation**
+  - Implemented mixed-type quiz generation, answer evaluation, and attempt tracking.
+- **Homework helper**
+  - Implemented OCR + AI pipeline to detect explicit questions and return structured answers.
+- **Text-to-speech (TTS)**
+  - Implemented local Piper-based audio generation for document-derived content.
+- **Dashboard analytics**
+  - Implemented activity metrics and quiz performance visualization.
+
+---
+
+## Screenshots
+
+> Screenshots are included for key modules to illustrate user flows and UI behavior.
+
+### Dashboard
+![Dashboard Screenshot](./screenshots/dashboard.png)
+
+### Quiz System
+![Quiz Screenshot](./screenshots/quiz.png)
+
+### Flashcard
+![Flashcard Screenshot](./screenshots/flashcard.png)
+
+### Chatbot
+![Chatbot Screenshot](./screenshots/chatbot.png)
+
+---
+
+## Architecture
+
+- Custom MVC-style PHP architecture (`controllers`, `models`, `services`, `views`)
+- Front controller routing via `index.php`
+- Apache rewrite rules in `.htaccess`
+- Server-rendered pages with AJAX endpoints for interactive operations
+
+### Request Flow
+
+```text
+HTTP Request
+  -> index.php (front controller)
+  -> Router / Controller dispatch
+  -> Controller action
+  -> Service / Model layer
+  -> Database and/or external APIs
+  -> HTML view or JSON response
 ```
 
-### 2. Install Dependencies
+---
 
-Navigate to the project directory and install the required PHP dependencies using Composer.
+## Tech Stack
+
+### Backend
+- PHP (custom MVC-style implementation)
+- MySQL (PDO)
+
+### Frontend
+- HTML, CSS, JavaScript
+- Bootstrap
+- jQuery + Fetch API
+
+### Infrastructure and Runtime
+- Apache (XAMPP-oriented local setup)
+- Composer (dependency management)
+
+### Integrations
+- Gemini API (content generation and embeddings)
+- Google Cloud Storage (document and audio object storage)
+- Google Vision API (OCR fallback)
+- Tesseract OCR (primary OCR)
+- Piper (local TTS)
+- PHPMailer (SMTP email delivery)
+
+---
+
+## Project Structure
+
+```text
+app/
+  config/        Environment and route configuration
+  controllers/   Request orchestration and endpoint logic
+  models/        Database and storage data access
+  services/      AI, OCR, TTS, export, email, rate-limit services
+  views/         Server-rendered UI templates (PHP + JS)
+
+public/          Static assets (CSS/images/icons)
+vendor/          Composer dependencies
+models-piper/    Piper model artifacts
+temp/            Runtime temp/cache files
+```
+
+---
+
+## Database Overview
+
+### Core domain
+- `user`: account and profile status
+- `folder`, `file`: document hierarchy, metadata, extracted text
+
+### Generated learning content
+- `summary`, `note`, `mindmap`, `flashcard`
+- `audio`: generated TTS metadata linked to source content
+
+### Assessment
+- `quiz`, `question`, `option`, `quiz_attempt`, `useranswer`
+
+### Retrieval and chat
+- `documentchunks`: chunked text + embeddings for retrieval
+- `chatbot`, `questionchat`, `responsechat`: document chat history
+
+### Homework workflow
+- `homework_helper`: upload, processing state, detected question, generated answer
+
+---
+
+## Local Setup
+
+### 1) Install dependencies
 
 ```bash
-cd /Applications/XAMPP/xamppfiles/htdocs/studyaid
 composer install
 ```
 
-### 3. Database Setup
+### 2) Prepare database
 
-1.  **Start XAMPP:** Open the XAMPP control panel and start the Apache and MySQL modules.
-2.  **Create Database:**
-    *   Open your web browser and navigate to `http://localhost/phpmyadmin`.
-    *   Create a new database named `studyaid`.
-3.  **Import SQL File:**
-    *   Select the `studyaid` database in phpMyAdmin.
-    *   Click on the "Import" tab.
-    *   Choose the `studyaid.sql` file from the root of the project directory and click "Go".
+1. Create a MySQL database named `studyaid`.
+2. Import `studyaid.sql` into that database.
 
-### 4. Configure the Application
+### 3) Configure environment-specific files
 
-1.  **Database Connection:**
-    *   Open `app/config/database.php`.
-    *   Ensure the database credentials match your MySQL setup (the default XAMPP credentials are usually correct).
+Update configuration values in:
+- `app/config/database.php`
+- `app/config/gemini.php` (or local override if used)
+- `app/config/cloud_storage.php`
+- `app/config/email.php`
 
-2.  **Google Cloud Services:**
-    *   **Google Cloud Storage & Vision:**
-        *   Place your Google Cloud JSON key file in the `credentials/` directory.
-        *   Update `app/config/cloud_storage.php` with your bucket name and the correct path to your key file.
-    *   **Google Gemini API:**
-        *   Set your Gemini API key as an environment variable or directly in `app/config/gemini.php`.
+### 4) Install required local tools
 
-3.  **Email Service:**
-    *   Open `app/config/email.php` and configure your SMTP settings (e.g., for Gmail).
+- Tesseract OCR
+- Piper TTS binary and model files
 
-## Running the Application
+### 5) Run application
 
-1.  **Start the Server:** Ensure that Apache and MySQL are running in your XAMPP control panel.
-2.  **Access the Application:** Open your web browser and navigate to:
-    ```
-    http://localhost/studyaid
-    ```
+1. Start Apache and MySQL (for example, via XAMPP).
+2. Open:
 
-## Setup for Windows
+```text
+http://localhost/studyaid
+```
 
-The setup steps for Windows are nearly identical, with the main difference being the path to your `htdocs` directory.
+---
 
-1.  **Clone the Repository:** Clone the project into your XAMPP `htdocs` folder (e.g., `C:\xampp\htdocs\studyaid`).
-2.  **Install Dependencies:** Open a command prompt or terminal, navigate to the project directory (`cd C:\xampp\htdocs\studyaid`), and run `composer install`.
-3.  **Database Setup:** Follow the same database setup steps as above using phpMyAdmin.
-4.  **Configuration:** Configure the application files in the `app/config/` directory as described above.
-5.  **Run the Application:** Start Apache and MySQL via the XAMPP control panel and access `http://localhost/studyaid` in your browser.
+## Contribution Scope
+
+This project was developed by a two-person team.
+
+My primary contributions:
+- **Dashboard and analytics**
+  - Designed and implemented aggregation queries and analytics UI integration.
+- **Quiz system**
+  - Designed and implemented quiz generation and evaluation workflows with persistent result tracking
+- **Flashcard module**
+  - Implemented CRUD and review flow for flashcard sets.
+- **RAG-based chatbot**
+  - Integrated chunk retrieval logic with AI response generation.
+- **Homework helper**
+  - Implemented OCR-to-answer pipeline for uploaded homework files.
+
+Additional engineering contributions:
+- Traced and documented end-to-end request flow
+- Analyzed architecture and module boundaries
+- Integrated AI services into backend feature workflows
+
+These components required coordinating multiple subsystems, including OCR processing, retrieval-based context generation, and AI-driven response pipelines.
+
+---
+
+## Design Considerations
+
+- **Pragmatic monolith architecture:** Chosen to keep deployment and iteration simple for an academic product scope.
+- **Server-rendered first, AJAX where needed:** Reduced frontend complexity while enabling interactive generation flows.
+- **Retrieval-based context for AI calls:** Added chunk + embedding retrieval to improve relevance over full-document prompting.
+- **Service abstraction:** Isolated OCR, LLM, TTS, email, and export logic under `app/services/`.
+
+---
+
+## Limitations
+
+- Depends on external services and credentials (Gemini, Google Cloud, SMTP).
+- Local runtime requires additional binaries (Tesseract, Piper).
+- Some areas still need production hardening (CSRF protection, session/security controls, secrets management).
+- Large model/dependency assets increase repository size and setup time.
+
+---
+
+## Future Improvements
+
+- Strengthen security controls (CSRF protection, session hardening, stricter validation)
+- Refactor large controllers/models into smaller domain-focused modules
+- Improve performance for large-document ingestion and retrieval workloads
+- Standardize frontend architecture and reduce duplicated client-side logic
+- Externalize secrets/configuration with environment-based management
