@@ -219,8 +219,8 @@ These components required coordinating multiple subsystems, including OCR proces
 
 ## Future Improvements
 
-- Strengthen security controls (CSRF protection, session hardening, stricter validation)
-- Refactor large controllers/models into smaller domain-focused modules
-- Improve performance for large-document ingestion and retrieval workloads
-- Standardize frontend architecture and reduce duplicated client-side logic
-- Externalize secrets/configuration with environment-based management
+- Strengthen security controls (CSRF protection, session hardening, stricter validation).
+- Refactor large controllers/models into smaller domain-focused modules.
+- Improve performance for large-document ingestion and retrieval workloads.
+- Standardize frontend architecture and reduce duplicated client-side logic.
+- Externalize secrets/configuration with environment-based management.
